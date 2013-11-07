@@ -9,7 +9,7 @@ use strict;
 use Exporter;
 use Getopt::Long qw/ :config no_ignore_case /;
 
-use vars qw/ $DEBUG $HELP $USER $PASS $HOST $PORT %DEFAULT_OPTIONS 
+use vars qw/ $DEBUG $HELP $USER $PASS $HOST $PORT $SOCKET %DEFAULT_OPTIONS 
              $PASSWORD_ON @ISA @EXPORT $DEFAULT_OPTIONS_STRING
            /;
 
@@ -26,12 +26,13 @@ $HOST = '';
 
 die "'mysql' binary not found in your \$PATH\n" if !`which mysql`;
 
-$DEFAULT_OPTIONS_STRING = " [-d] [-?] [-u user [-p [pass]]] [-h host] [-P <port>]";
+$DEFAULT_OPTIONS_STRING = " [-d] [-?] [-u user [-p [pass]]] [-h host] [-P <port>] [-S socket]";
 my %DEFAULT_OPTIONS = (
     'help|?' => \$HELP,
     'debug|d' => \$DEBUG,
     'host|h=s' => \$HOST,
     'P=i' => \$PORT,
+    'socket|S=s' => \$SOCKET,
     'user|u=s' => \$USER,
     'p:s' => \$PASS,
 );
@@ -196,8 +197,8 @@ sub parse_options {
 
 
 sub mysql_call {
-    my ( $sql, $user, $pass, $host, $port ) = ('', '', '', '', '' );
-    ( $sql, $host, $port ) = @_;
+    my ( $sql, $user, $pass, $host, $port, $socket ) = ('', '', '', '', '', '' );
+    ( $sql, $host, $port, $socket ) = @_;
 
     # Prompt for a password the first time we need it, and only if -p was 
     # given on the command line (could be passwordless)
@@ -215,6 +216,9 @@ sub mysql_call {
     if( $port eq '' ) {
         $port = $PORT;
     }
+    if( $socket eq '') {
+        $socket = $SOCKET;
+    }
     if( $user eq '' ) {
         $user = $USER;
     }
@@ -222,15 +226,19 @@ sub mysql_call {
         $pass = $PASS;
     }
 
-    my ( $user_str, $pass_str, $host_str, $port_str ) = ('', '', '', '', '' );
+    my ( $connect_str, $user_str, $pass_str, $host_str, $port_str, $socket_str ) = ('', '', '', '', '', '', '' );
 
     $user_str = ' --user=' . $user if( $user ne '' );
     $pass_str = ' \'--password=' . $pass . '\'' if( $pass ne '' );
     $host_str = ' --host=' . $host if( $host ne '' );
     $port_str = ' --port=' . $port if( $port ne '' );
+    $socket_str = ' --socket=' . $socket if( $socket ne '' );
 
-    &print_debug( "echo \"$sql\" | mysql $user_str $pass_str $host_str $port_str" );
-    my @output = `echo "$sql" | mysql $user_str $pass_str $host_str $port_str`;
+    $connect_str = $socket_str;
+    $connect_str = join "", $user_str, $pass_str, $host_str, $port_str if( $socket eq '' );
+
+    &print_debug( "echo \"$sql\" | mysql $connect_str" );
+    my @output = `echo "$sql" | mysql $connect_str`;
 
     my $rc = $? >> 8;
     if( $rc ) {

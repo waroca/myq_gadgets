@@ -5,7 +5,7 @@ Tools to help make life easier with MySQL.
 Note that you need to have some version of the mysql client, it's up to you to
 install it.  
 
-All gadgets take mysql command like options (-u,-p,-h,-P), run with --help to
+All gadgets take mysql command like options (-u,-p,-h,-P, -S), run with --help to
 see all options.
 
 Gadgets:
@@ -66,6 +66,7 @@ Standard Options:
 
 -u: mysql username 
 -p: mysql password (leave blank to be prompted)
+-S: mysql socket
 -h: hostname of the mysql server
 -H: file with a list of hosts to use (instead of -h).  
 -P: port to connect to (default: 3306)

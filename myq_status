@@ -136,13 +136,14 @@ my %options = (
     'f=s' => \$FILENAME,
 );
 my $usage = <<USAGE;
-myq_status  [-d] [-?] [-u user [-p [pass]]] [-h host] [-P <port>] [-t <secs>] [-f <input file>] <mode>
+myq_status  [-d] [-?] [-u user [-p [pass]]] [-h host] [-P <port>] [-S socket] [-t <secs>] [-f <input file>] <mode>
 
   -?    Print this message and exit
   -d    Print debug information
   -f    Input File to read from
   -h    MySQL host to connect to
   -P    MySQL port to connect to
+  -S    MySQL socket file
   -t    Repeat time (default 10 seconds)
   -u    Username to connect to MySQL
 
